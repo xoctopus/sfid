@@ -10,7 +10,7 @@ import (
 
 var (
 	base, _ = time.Parse(factory.Layout, "2025-05-21T00:00:00.000Z")
-	g1      = sfid.NewIDGen(3)
+	g1      = sfid.NewDefaultIDGen(3)
 	g2      = factory.NewWorker(2, 1, base, 10, 12)
 )
 

@@ -25,8 +25,18 @@ type IDGen interface {
 	ID() int64
 }
 
-func NewIDGen(worker uint32) IDGen {
+func NewDefaultIDGen(worker uint32) IDGen {
 	return factory.NewWorker(worker, 1, base, 10, 12)
+}
+
+// NewIDGen
+// worker: worker id
+// unit: snowflake clock unit(milliseconds)
+// base: snowflake epoch timestamp
+// wbs: worker bits
+// sbs: sequence bits
+func NewIDGen(worker uint32, unit int, base time.Time, wbs, sbs int) IDGen {
+	return factory.NewWorker(worker, unit, base, wbs, sbs)
 }
 
 type k struct{}
