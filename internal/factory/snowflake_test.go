@@ -19,35 +19,43 @@ func BenchmarkSnowflake_ID(b *testing.B) {
 	)
 
 	gen := func() {
-		var f *Factory
+		var f1, f2, f4 *Factory
 		defer func() {
-			if recover() == nil {
-				factories = append(factories, f)
+			if r := recover(); r == nil {
+				factories = append(factories, f1, f2, f4)
+			} else {
+				b.Log(r)
 			}
 		}()
-		f = NewFactory(benchN, base_, worker, seq)
+		f1 = NewFactory(1, base_, worker, seq)
+		f2 = NewFactory(2, base_, worker, seq)
+		f4 = NewFactory(4, base_, worker, seq)
 	}
 
 	// The generated factories can support at least 64 workers and generating up
 	// to 128 sfids per gap.
 	for bits := 16; bits <= 62; bits++ {
-		for worker = 6; worker <= bits; worker++ {
+		for worker = 10; worker <= bits; worker++ {
 			seq = bits - worker
-			if worker <= 6 || seq <= 8 {
+			if worker < 10 || seq < 10 {
 				continue
 			}
 			gen()
 		}
 	}
 	sort.Slice(factories, func(i, j int) bool {
-		_i, _j := factories[i], factories[j]
-		if _i.SeqBits() > _j.SeqBits() {
-			return false
+		fi, fj := factories[i], factories[j]
+
+		if fi.Unit() != fj.Unit() {
+			return fi.Unit() < fj.Unit()
 		}
-		if _i.SeqBits() < _j.SeqBits() {
-			return true
+		if fi.WorkerBits() != fj.WorkerBits() {
+			return fi.WorkerBits() < fj.WorkerBits()
 		}
-		return _i.WorkerBits() < _j.WorkerBits()
+		if fi.SeqBits() != fj.SeqBits() {
+			return fi.SeqBits() < fj.SeqBits()
+		}
+		return fi.GapBits() < fj.GapBits()
 	})
 
 	for _, f := range factories {
@@ -55,7 +63,7 @@ func BenchmarkSnowflake_ID(b *testing.B) {
 			s := f.New(1)
 			defer func() {
 				if e := recover(); e != nil {
-					b.Log(recover())
+					b.Log(e)
 				}
 			}()
 			for range b.N {

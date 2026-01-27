@@ -26,10 +26,10 @@ type IDGen interface {
 }
 
 func NewDefaultIDGen(worker uint32) IDGen {
-	return factory.NewWorker(worker, 1, base, 10, 12)
+	return NewIDGen(worker, 1, base, 10, 12)
 }
 
-// NewIDGen
+// NewIDGen new id generator
 // worker: worker id
 // unit: snowflake clock unit(milliseconds)
 // base: snowflake epoch timestamp

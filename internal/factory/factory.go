@@ -2,8 +2,8 @@ package factory
 
 import (
 	"fmt"
-	"math"
-	mbits "math/bits"
+	"math/big"
+	"sync"
 	"time"
 
 	"github.com/xoctopus/x/misc/must"
@@ -52,21 +52,16 @@ func NewFactory(unit int, base time.Time, bits ...int) *Factory {
 		unit: time.Duration(unit) * time.Millisecond,
 		base: base,
 	}
-	end := time.Now().Add(10 * 365 * 24 * 60 * 60 * time.Second)
-	hi, lo := mbits.Mul64(uint64(f.gap.max), uint64(f.unit))
-	ts := time.Unix(int64(lo)/int64(time.Second), int64(lo)%int64(time.Second))
+	ns := big.NewInt(0).Mul(big.NewInt(f.gap.max), big.NewInt(int64(f.unit)))
+	yr := big.NewInt(int64(365 * 24 * time.Hour))
+	ys := big.NewInt(0).Div(ns, yr)
 	must.BeTrueF(
-		hi > 0 || ts.Sub(end) > 0,
-		"factory MUST be able to generate continuously for 10 years or longer from now",
+		ys.Int64() > 10,
+		"factory MUST be able to generate continuously for 10 years or longer from base",
 	)
-	if hi > 0 || lo > uint64(math.MaxInt64) {
-		f.end = f.base.Add(time.Duration(math.MaxInt64))
-	} else {
-		f.end = f.base.Add(time.Duration(lo))
-	}
 
 	f.gap0 = f.Gaps(f.base)
-	f.tag = fmt.Sprintf("0x%02X_0x%02X_0x%02X", unit, bits[1], bits[0])
+	f.tag = fmt.Sprintf("U%02d_T%02d_W%02d_S%02d_%04d", unit, 63-bits[1]-bits[0], bits[0], bits[1], ys.Int64())
 
 	return f
 }
@@ -98,8 +93,9 @@ func (f *Factory) Gaps(t time.Time) int64 { return t.UnixNano() / int64(f.unit) 
 
 // Elapsed returns units from base to t
 func (f *Factory) Elapsed() int64 {
-	gaps := f.Gaps(time.Now())
-	must.BeTrue(gaps >= f.gap0)
+	// gaps := f.Gaps(time.Now())
+	gaps := time.Since(f.base).Nanoseconds()/int64(f.unit) + f.gap0
+	// must.BeTrue(gaps >= f.gap0)
 	return gaps - f.gap0
 }
 
@@ -107,7 +103,7 @@ func (f *Factory) Mask(seq uint32) uint32 { return seq & uint32(f.seq.max) }
 
 func (f *Factory) New(wid uint32) *Worker {
 	must.BeTrue(wid <= uint32(f.wid.max))
-	return &Worker{f: f, id: wid}
+	return &Worker{f: f, id: wid, mtx: &sync.Mutex{}}
 }
 
 func (f *Factory) Build(worker, seq uint32, gap int64) int64 {
@@ -139,3 +135,5 @@ func (f *Factory) Unit() int { return int(f.unit / time.Millisecond) }
 func (f *Factory) SeqBits() int { return f.seq.bits }
 
 func (f *Factory) WorkerBits() int { return f.wid.bits }
+
+func (f *Factory) GapBits() int { return 63 - f.seq.bits - f.wid.bits }

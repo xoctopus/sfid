@@ -1,7 +1,6 @@
 package factory_test
 
 import (
-	"flag"
 	"testing"
 	"time"
 
@@ -12,13 +11,7 @@ import (
 
 var (
 	base_, _ = time.Parse(Layout, "2025-05-21T00:00:00.000Z")
-	// benchN as unit for generate factories for benchmarking
-	benchN int
 )
-
-func init() {
-	flag.IntVar(&benchN, "unit", 1, "set unit to run benchmark, default to run `Benchmark` without skip gap")
-}
 
 func TestFactory(t *testing.T) {
 	t.Run("NewFactory", func(t *testing.T) {
@@ -47,7 +40,7 @@ func TestFactory(t *testing.T) {
 		t.Run("TooShortTimestamp", func(t *testing.T) {
 			ExpectPanic[error](t, func() {
 				NewFactory(5, base_, 20, 20)
-			}, ErrorContains("factory MUST be able to generate continuously for 10 years or longer from now"))
+			}, ErrorContains("factory MUST be able to generate continuously for 10 years or longer from base"))
 		})
 	})
 
@@ -79,5 +72,14 @@ func TestFactory(t *testing.T) {
 				Expect(t, n-1 <= sub && sub <= n+1, BeTrue())
 			}
 		}
+	})
+
+	t.Run("Bits", func(t *testing.T) {
+		f := NewFactory(1, base_, 4, 5)
+		Expect(t, f.WorkerBits(), Equal(4))
+		Expect(t, f.SeqBits(), Equal(5))
+		Expect(t, f.GapBits(), Equal(63-4-5))
+
+		f.Build(0, 1, 10)
 	})
 }
