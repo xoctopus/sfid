@@ -2,7 +2,11 @@
 <a name="HEAD"></a>
 ## [HEAD](https://github.com/xoctopus/x/compare/v0.0.3...HEAD)
 
-> 0001-01-01
+> 2026-01-27
+
+### Feat
+
+* **factory:** imporve id generator
 
 
 <a name="v0.0.3"></a>
