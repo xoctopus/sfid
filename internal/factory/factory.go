@@ -61,7 +61,7 @@ func NewFactory(unit int, base time.Time, bits ...int) *Factory {
 	)
 
 	f.gap0 = f.Gaps(f.base)
-	f.tag = fmt.Sprintf("U%02d_T%02d_W%02d_S%02d_%04d", unit, 63-bits[1]-bits[0], bits[0], bits[1], ys.Int64())
+	f.tag = fmt.Sprintf("U%02d_T%02d_W%02d_S%02d_%04dy", unit, 63-bits[1]-bits[0], bits[0], bits[1], ys.Int64())
 
 	return f
 }

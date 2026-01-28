@@ -1,8 +1,28 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/x/compare/v0.0.3...HEAD)
+## [HEAD](https://github.com/xoctopus/x/compare/v0.0.5...HEAD)
+
+> 0001-01-01
+
+
+<a name="v0.0.5"></a>
+## [v0.0.5](https://github.com/xoctopus/x/compare/v0.0.4...v0.0.5)
 
 > 2026-01-27
+
+### Chore
+
+* add exports for internal/factory
+
+
+<a name="v0.0.4"></a>
+## [v0.0.4](https://github.com/xoctopus/x/compare/v0.0.3...v0.0.4)
+
+> 2026-01-27
+
+### Doc
+
+* update CHANGELOG
 
 ### Feat
 

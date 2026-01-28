@@ -22,7 +22,8 @@ func init() {
 }
 
 type IDGen interface {
-	ID() int64
+	ID() (int64, error)
+	MustID() int64
 }
 
 func NewDefaultIDGen(worker uint32) IDGen {

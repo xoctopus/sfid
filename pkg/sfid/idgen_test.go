@@ -1,8 +1,11 @@
 package sfid_test
 
 import (
+	"context"
 	"testing"
 	"time"
+
+	. "github.com/xoctopus/x/testx"
 
 	"github.com/xoctopus/sfid/internal/factory"
 	"github.com/xoctopus/sfid/pkg/sfid"
@@ -17,13 +20,22 @@ var (
 func Benchmark(b *testing.B) {
 	b.Run("Generator", func(b *testing.B) {
 		for range b.N {
-			_ = g1.ID()
+			_, _ = g1.ID()
 		}
 	})
 
 	b.Run("Snowflake", func(b *testing.B) {
 		for range b.N {
-			_ = g2.ID()
+			_, _ = g2.ID()
 		}
 	})
+}
+
+func TestInjector(t *testing.T) {
+	g := sfid.Must(
+		sfid.Carry(g1)(context.Background()),
+	)
+	Expect(t, g, NotBeNil[sfid.IDGen]())
+	g, _ = sfid.From(context.Background())
+	Expect(t, g, BeNil[sfid.IDGen]())
 }

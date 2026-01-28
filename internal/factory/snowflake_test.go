@@ -67,7 +67,7 @@ func BenchmarkSnowflake_ID(b *testing.B) {
 				}
 			}()
 			for range b.N {
-				_ = s.ID()
+				_, _ = s.ID()
 			}
 		})
 	}
@@ -90,9 +90,10 @@ func (s *SnowflakeTestSuite) ExpectN(n int) {
 
 func (s *SnowflakeTestSuite) Run(sf *Worker) {
 	for range s.N {
-		id := sf.ID()
-		s.m.Store(id, struct{}{})
-		s.size.Add(1)
+		if id, err := sf.ID(); err == nil {
+			s.m.Store(id, struct{}{})
+			s.size.Add(1)
+		}
 	}
 }
 
@@ -116,7 +117,7 @@ func TestSnowflake_ID(t *testing.T) {
 				defer func() {
 					Expect(t, recover(), BeNil[any]())
 				}()
-				_ = g.ID()
+				g.MustID()
 			}()
 		}
 	})
