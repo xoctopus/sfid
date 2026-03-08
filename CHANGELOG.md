@@ -1,8 +1,27 @@
 
 <a name="HEAD"></a>
-## [HEAD](https://github.com/xoctopus/x/compare/v0.0.5...HEAD)
+## [HEAD](https://github.com/xoctopus/x/compare/v0.0.6...HEAD)
 
-> 0001-01-01
+> 2026-01-28
+
+### Doc
+
+* add readme
+
+
+<a name="v0.0.6"></a>
+## [v0.0.6](https://github.com/xoctopus/x/compare/v0.0.5...v0.0.6)
+
+> 2026-01-28
+
+### BREAKING CHANGE
+
+
+WHAT:
+modify: IDGen.ID() int64 => IDGen.ID() (int64, error)
+added: IDGen.MustID() int64
+WHY: users can handle clock backwards
+HOW: use MustID or handler error
 
 
 <a name="v0.0.5"></a>
