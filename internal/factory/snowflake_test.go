@@ -112,7 +112,7 @@ func TestSnowflake_ID(t *testing.T) {
 	t.Run(f.String()+"_1x", func(t *testing.T) {
 		g := NewFactory(1, base_, 4, 4).New(1)
 
-		for i := 0; i < 10000; i++ {
+		for range 10000 {
 			func() {
 				defer func() {
 					Expect(t, recover(), BeNil[any]())
@@ -129,12 +129,10 @@ func TestSnowflake_ID(t *testing.T) {
 		con := 1000
 		wg := &sync.WaitGroup{}
 
-		for i := 0; i < con; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+		for range con {
+			wg.Go(func() {
 				suite.Run(g)
-			}()
+			})
 		}
 
 		wg.Wait()
